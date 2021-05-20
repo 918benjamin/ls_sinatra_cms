@@ -18,6 +18,8 @@ Reminders:
 - Every time you change the gemfile, run bundle install
 - Run program with bundle exec prepend
 - text files go in /data
+- specify url parameters with a symbol, access them with params[:symbol]
+- set headers with headers["Header-Field"] = "value"
 
 
 Future:
