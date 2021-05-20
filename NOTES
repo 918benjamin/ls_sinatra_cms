@@ -1,0 +1,19 @@
+Current:
+- Set up file structure (root directory, /public, /views)
+- set up Gemfile (bundle init) - source, ruby version, gems & versions
+  - bundle install
+- set up app.rb
+  - require gems
+  - 
+- set up route for get "/"
+
+
+
+Done:
+
+
+
+
+Future:
+Look at automating the project setup process - rake? bash?
+What is tilt? What is erubis? Why don't we need to require "erb"?
