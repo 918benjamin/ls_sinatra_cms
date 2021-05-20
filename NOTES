@@ -1,17 +1,24 @@
 Current:
+- Create the required initial documents in /public
+- 
+
+
+
+Done:
 - Set up file structure (root directory, /public, /views)
 - set up Gemfile (bundle init) - source, ruby version, gems & versions
   - bundle install
 - set up app.rb
   - require gems
-  - 
-- set up route for get "/"
+- set up route for get "/" in app.rb
 
 
-
-Done:
-
-
+Reminders:
+- erb files go in the /views
+- erb files need to be referenced in a route
+- When you start using erb files, require "tilt/erubis" in main app file and add gem "erubis" to Gemfile
+- Every time you change the gemfile, run bundle install
+- Run program with bundle exec prepend
 
 
 Future:
