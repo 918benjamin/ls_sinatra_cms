@@ -1,17 +1,10 @@
-<!doctype html>
-<html lang="en-US">
-  <head>
-    <title>Home</title>
-    <meta charset="UTF-8">
-  </head>
-  <body>
-    <% if session[:message]%>
-      <p><%= session.delete(:message) %></p>
-    <% end %>
-    <ul>
-      <% @files.each do |file|%>
-        <li><a href="/<%= file %>"><%= file %></a></li>
-      <% end %>
-    </ul>
-  </body>
-</html>
+<% if session[:message]%>
+  <p><%= session.delete(:message) %></p>
+<% end %>
+<ul>
+  <% @files.each do |file|%>
+    <li>
+      <a href="/<%= file %>"><%= file %></a> | <a href="/<%= file %>/edit">Edit</a>
+    </li>
+  <% end %>
+</ul>
