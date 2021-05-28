@@ -58,11 +58,11 @@ get "/:file_name/edit" do
   end
 end
 
-post "/:file_name/edit" do
-  @file_name = params[:file_name]
-  file_path = root + "/data/" + @file_name
+post "/:file_name" do
+  file_name = params[:file_name]
+  file_path = root + "/data/" + file_name
 
-  File.write(file_path, params[:edits])
-  session[:message] = "#{@file_name} has been updated."
+  File.write(file_path, params[:content])
+  session[:message] = "#{file_name} has been updated."
   redirect "/"
 end
