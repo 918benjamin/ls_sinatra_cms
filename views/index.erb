@@ -10,4 +10,15 @@
   <% end %>
 </ul>
 
-<a href="/new">New Document</a>
+<p><a href="/new">New Document</a></p>
+
+<% if @username %>
+  <form action="/users/signout" method="post">
+    <p class="user-status">
+      Signed in as <%= @username %>.
+      <button type="submit">Sign out</button>
+    </p>
+  </form>
+<% else %>
+  <p class="user-status"><a href="/users/signin">Sign in</a></p>
+<% end %>
