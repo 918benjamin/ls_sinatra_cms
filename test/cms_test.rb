@@ -30,6 +30,10 @@ class CMSTest < Minitest::Test
     last_request.env["rack.session"]
   end
 
+  def admin_session
+    { "rack.session" => { username: "admin" } }
+  end
+
   def test_index
     create_document "about.md"
     create_document "changes.txt"
@@ -71,7 +75,7 @@ class CMSTest < Minitest::Test
   def test_editing_document
     create_document "changes.txt"
 
-    get "/changes.txt/edit"
+    get "/changes.txt/edit", {}, admin_session
 
     assert_equal 200, last_response.status
     assert_includes last_response.body, "<textarea"
@@ -79,7 +83,7 @@ class CMSTest < Minitest::Test
   end
 
   def test_updating_document
-    post "/changes.txt", content: "new content"
+    post "/changes.txt", {content: "new content" }, admin_session
 
     assert_equal 302, last_response.status
     assert_equal "changes.txt has been updated.", session[:message]
@@ -90,7 +94,7 @@ class CMSTest < Minitest::Test
   end
 
   def test_view_new_document_form
-    get "/new"
+    get "/new", {}, admin_session
 
     assert_equal 200, last_response.status
     assert_includes last_response.body, "Add a new document:"
@@ -98,7 +102,7 @@ class CMSTest < Minitest::Test
   end
 
   def test_create_new_document
-    post "/create", filename: "test_doc.txt"
+    post "/create", { filename: "test_doc.txt" }, admin_session
 
     assert_equal 302, last_response.status
     assert_equal "test_doc.txt was created.", session[:message]
@@ -108,7 +112,7 @@ class CMSTest < Minitest::Test
   end
 
   def test_error_creating_new_document_no_filename
-    post "/create", filename: ""
+    post "/create", { filename: "" }, admin_session
 
     assert_equal 422, last_response.status
     assert_includes last_response.body, "A name is required"
@@ -117,7 +121,7 @@ class CMSTest < Minitest::Test
   def test_delete_file
     create_document "test_file.txt"
 
-    post "/test_file.txt/delete"
+    post "/test_file.txt/delete", {}, admin_session
     assert_equal 302, last_response.status
     assert_equal "test_file.txt has been deleted.", session[:message]
 
@@ -151,7 +155,7 @@ class CMSTest < Minitest::Test
   end
 
   def test_signout
-    get "/", {}, {"rack.session" => { username: "admin" } }
+    get "/", {}, admin_session
     assert_includes last_response.body, "Signed in as admin"
 
     post "/users/signout"
@@ -160,5 +164,41 @@ class CMSTest < Minitest::Test
     get last_response["Location"]
     assert_nil session[:username]
     assert_includes last_response.body, "Sign In"
+  end
+
+  def test_guest_redirect_from_edit
+    create_document("test.txt")
+
+    get "/test.txt/edit"
+    assert_equal "You must be signed in to do that.", session[:message]
+
+    get "/"
+    assert_nil session[:message]
+
+    post "/test.txt"
+    assert_equal "You must be signed in to do that.", session[:message]
+  end
+
+  def test_guest_redirect_from_new
+    create_document("test.txt")
+
+    get "/new"
+    assert_equal "You must be signed in to do that.", session[:message]
+
+    get "/"
+    assert_nil session[:message]
+
+    post "/create"
+    assert_equal "You must be signed in to do that.", session[:message]
+  end
+
+  def test_guest_redirect_from_delete
+    create_document("test.txt")
+
+    post "/test.txt/delete"
+    assert_equal "You must be signed in to do that.", session[:message]
+
+    get "/"
+    assert_nil session[:message]
   end
 end
