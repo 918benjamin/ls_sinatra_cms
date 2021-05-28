@@ -94,4 +94,32 @@ class CMSTest < Minitest::Test
     assert_equal 200, last_response.status
     assert_includes last_response.body, "new content"
   end
+
+  def test_view_new_document_form
+    get "/new"
+
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "Add a new document:"
+    assert_includes last_response.body, %q(<form action="/create")
+  end
+
+  def test_create_new_document
+    post "/create", filename: "test_doc.txt"
+
+    assert_equal 302, last_response.status
+
+    get last_response["Location"]
+
+    assert_includes last_response.body, "test_doc.txt was created"
+
+    get "/"
+    assert_includes last_response.body, "test_doc.txt"
+  end
+
+  def test_error_creating_new_document_no_filename
+    post "/create", filename: ""
+
+    assert_equal 422, last_response.status
+    assert_includes last_response.body, "A name is required"
+  end
 end
