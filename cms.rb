@@ -3,11 +3,17 @@ require "sinatra/reloader"
 require "tilt/erubis"
 require "redcarpet"
 
-root = File.expand_path("..", __FILE__)
-
 configure do
   enable :sessions
   set :session_secret, "secret"
+end
+
+def data_path
+  if ENV["RACK_ENV"] == "test"
+    File.expand_path("../test/data", __FILE__)
+  else
+    File.expand_path("../data", __FILE__)
+  end
 end
 
 def render_html(text)
@@ -27,14 +33,15 @@ def load_file_content(path)
 end
 
 get "/" do
-  @files = Dir.glob(root + "/data/*").map do |path|
+  pattern = File.join(data_path, "*")
+  @files = Dir.glob(pattern).map do |path|
     File.basename(path)
   end
   erb :index
 end
 
 get "/:file_name" do
-  file_path = root + "/data/" + params[:file_name]
+  file_path = File.join(data_path, params[:file_name])
 
   if File.exist?(file_path)
     load_file_content(file_path)
@@ -46,23 +53,18 @@ end
 
 get "/:file_name/edit" do
   @file_name = params[:file_name]
-  file_path = root + "/data/" + @file_name
+  file_path = File.join(data_path, @file_name)
+  @content = File.read(file_path)
 
-  if File.exist?(file_path)
-    @content = load_file_content(file_path)
-    headers["Content-Type"] = "text/html"
-    erb :edit
-  else
-    session[:message] = "#{@file_name} does not exist."
-    redirect "/"
-  end
+  erb :edit
 end
 
 post "/:file_name" do
   file_name = params[:file_name]
-  file_path = root + "/data/" + file_name
+  file_path = File.join(data_path, file_name)
 
   File.write(file_path, params[:content])
+
   session[:message] = "#{file_name} has been updated."
   redirect "/"
 end
