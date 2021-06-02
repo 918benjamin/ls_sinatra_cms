@@ -201,4 +201,13 @@ class CMSTest < Minitest::Test
     get "/"
     assert_nil session[:message]
   end
+
+  def test_invalid_file_name
+    post "/create", { filename: "bad.pdf" }, admin_session
+    assert_includes last_response.body, "Only md, txt files are accepted."
+    assert_equal 422, last_response.status
+
+    get "/"
+    refute_includes last_response.body, "bad.pdf"
+  end
 end
