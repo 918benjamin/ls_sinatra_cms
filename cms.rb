@@ -5,6 +5,8 @@ require "redcarpet"
 require "yaml"
 require "bcrypt"
 
+VALID_FILE_EXTENSIONS = %w(md txt)
+
 configure do
   enable :sessions
   set :session_secret, "secret"
@@ -69,22 +71,34 @@ get "/new" do
   erb :new
 end
 
+def valid_filename?(file_name)
+  file_name.match?(/\w+\.(#{VALID_FILE_EXTENSIONS.join("|")})/)
+end
+
+def filename_message(file_name)
+  if file_name.empty?
+    "A name is required."
+  elsif !valid_filename?(file_name)
+    "Only #{VALID_FILE_EXTENSIONS.join(", ")} files are accepted."
+  end
+end
+
 post "/create" do
   require_signed_in_user
 
   file_name = params[:filename]
 
-  if file_name.empty?
-    session[:message] = "A name is required."
-    status 422
-    erb :new
-  else
+  if valid_filename?(file_name)
     file_path = File.join(data_path, file_name)
 
     File.write(file_path, "")
 
     session[:message] = "#{file_name} was created."
     redirect "/"
+  else
+    session[:message] = filename_message(file_name)
+    status 422
+    erb :new
   end
 end
 
