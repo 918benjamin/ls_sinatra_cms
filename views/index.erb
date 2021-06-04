@@ -2,7 +2,9 @@
   <% @files.each do |file|%>
     <li>
       <a href="/<%= file %>"><%= file %></a>
-      <a href="/<%= file %>/edit">edit</a>
+      <% unless %w(.jpg .jpeg .png).include?(File.extname(file))%>
+        <a href="/<%= file %>/edit">edit</a>
+      <% end %>
       <form class="inline" action="/<%= file %>/delete" method="post">
         <button type="submit">delete</button>
       </form>
@@ -14,7 +16,7 @@
   <% end %>
 </ul>
 
-<p><a href="/new">New Document</a></p>
+<p><a href="/new">New Document</a> | <a href="/upload">Upload Image</a></p>
 
 <% if @username %>
   <form action="/users/signout" method="post">

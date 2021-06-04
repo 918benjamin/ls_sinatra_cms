@@ -206,7 +206,7 @@ class CMSTest < Minitest::Test
 
   def test_invalid_file_name
     post "/create", { filename: "bad.pdf" }, admin_session
-    assert_includes last_response.body, "Only md, txt files are accepted."
+    assert_includes last_response.body, "Only #{VALID_FILE_EXTENSIONS.join(", ")} files are accepted."
     assert_equal 422, last_response.status
 
     get "/"

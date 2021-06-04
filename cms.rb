@@ -5,7 +5,7 @@ require "redcarpet"
 require "yaml"
 require "bcrypt"
 
-VALID_FILE_EXTENSIONS = %w(md txt)
+VALID_FILE_EXTENSIONS = %w(md txt jpg jpeg png)
 
 configure do
   enable :sessions
@@ -32,6 +32,12 @@ def load_file_content(path)
     erb render_html(file)
   when ".txt"
     headers["Content-Type"] = "text/plain"
+    file
+  when ".jpeg", ".jpg"
+    headers["Content-Type"] = "image/jpeg"
+    file
+  when ".png"
+    headers["Content-Type"] = "image/png"
     file
   end
 end
@@ -69,6 +75,28 @@ get "/new" do
   require_signed_in_user
 
   erb :new
+end
+
+get "/upload" do
+  require_signed_in_user
+
+  erb :upload
+end
+
+post "/upload" do
+  require_signed_in_user
+
+  file = params[:file][:tempfile]
+  file_name = params[:file][:filename]
+
+  file_path = File.join(data_path, file_name)
+
+  File.open(file_path, 'wb') do |f|
+    f.write(file.read)
+  end
+
+  session[:message] = "#{file_name} was uploaded."
+  redirect "/"
 end
 
 def valid_filename?(file_name)
