@@ -1,2 +1,6 @@
 ---
-ben: $2a$12$nYcJqRXqyPxPVBnAldV8COM7osYeI7f4zTMMJGWCdjMHgeYBM6n42
+ben: "$2a$12$nYcJqRXqyPxPVBnAldV8COM7osYeI7f4zTMMJGWCdjMHgeYBM6n42"
+admin: "$2a$12$oX0fXOkFo8VxTCys76JYfuc33Tbd63kmsLDdXBNBQuxTbIPPkCsBm"
+new_user: "$2a$12$iIY4XjDh4q0N.gajt4czdOkNADEU82HEJZFHzs7G9nCwbfSXp7hIC"
+bean: "$2a$12$M1n/ARcxHJsiLLE9uA9rgu14Lj/e/pXqcEHAMpyBgU3GTd8Tl71/S"
+bean1: "$2a$12$HHU12PgaEotE6Ye6IPqiLuiw8t3aaG.4j4nMnBsigREfLEJEgFchq"

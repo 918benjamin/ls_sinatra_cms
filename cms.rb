@@ -173,6 +173,10 @@ get "/users/signin" do
   erb :signin
 end
 
+get "/users/signup" do
+  erb :signup
+end
+
 def valid_credentials?(username, password)
   credentials = load_user_credentials
 
@@ -195,6 +199,56 @@ post "/users/signin" do
     session[:message] = "Invalid credentials"
     status 422
     erb :signin
+  end
+end
+
+def write_new_credentials(credentials)
+  credentials_path = if ENV["RACK_ENV"] == "test"
+    File.expand_path("../test/users.yml", __FILE__)
+  else
+    File.expand_path("../users.yml", __FILE__)
+  end
+  File.open(credentials_path, "w") { |file| YAML.dump(credentials, file) }
+end
+
+def existing_user?(username)
+  credentials = load_user_credentials
+
+  credentials.key?(username)
+end
+
+def valid_username?(username)
+  !username.empty? && username.match?(/\w{3,20}/) && !existing_user?(username)
+end
+
+def add_new_user(username, password)
+  credentials = load_user_credentials
+  credentials[username] = BCrypt::Password.create(params[:password]).to_s
+  write_new_credentials(credentials)
+end
+
+def username_message(username)
+  if !username.match?(/\w{3,20}/)
+    "Username must be 3-20 characters (letters, numbers, & underscores only)"
+  elsif existing_user?(username)
+    "That username is taken. Please choose a new one."
+  else
+    "Something went wrong. Not sure what..."
+  end
+end
+
+post "/users/signup" do
+  username = params[:username]
+
+  if valid_username?(username)
+    add_new_user(username, params[:password])
+    session[:username] = username
+    session[:message] = "Your account has been created. Welcome!"
+    redirect "/"
+  else
+    session[:message] = username_message(username)
+    status 422
+    erb :signup
   end
 end
 
