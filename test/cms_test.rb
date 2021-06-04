@@ -210,4 +210,24 @@ class CMSTest < Minitest::Test
     get "/"
     refute_includes last_response.body, "bad.pdf"
   end
+
+  def test_duplicate_file
+    create_document("test.txt", "my awesome content")
+
+    post "/clone", { filename: "test.txt" }, admin_session
+
+    get "/"
+    assert_includes last_response.body, "test.txt was duplicated."
+    assert_includes last_response.body, "test(copy).txt"
+
+    get "/test.txt"
+    assert_includes last_response.body, "my awesome content"
+  end
+
+  def test_guest_redirect_from_duplicate
+    create_document("test.txt")
+
+    post "/clone", filename: "test.txt"
+    assert_equal "You must be signed in to do that.", session[:message]
+  end
 end
