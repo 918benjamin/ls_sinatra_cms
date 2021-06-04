@@ -102,6 +102,28 @@ post "/create" do
   end
 end
 
+def duplicate_filename(filename)
+  parts = filename.split(".")
+  parts.first << "(copy)"
+  parts.join(".")
+end
+
+post "/clone" do
+  require_signed_in_user
+
+  old_file_name = params[:filename]
+  new_file_name = duplicate_filename(old_file_name)
+  
+  old_file_path = File.join(data_path, old_file_name)
+  new_file_path = File.join(data_path, new_file_name)
+  contents = File.read(old_file_path)
+
+  File.write(new_file_path, contents)
+
+  session[:message] = "#{old_file_name} was duplicated."
+  redirect "/"
+end
+
 get "/:file_name" do
   file_path = File.join(data_path, params[:file_name])
 

@@ -6,6 +6,10 @@
       <form class="inline" action="/<%= file %>/delete" method="post">
         <button type="submit">delete</button>
       </form>
+      <form class="inline" action="/clone" method="post">
+        <input type="hidden" id="filename" name="filename" value="<%= file %>">
+        <button type="submit">duplicate</button>
+      </form>
     </li>
   <% end %>
 </ul>
