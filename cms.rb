@@ -202,13 +202,18 @@ post "/users/signin" do
   end
 end
 
-def write_new_credentials(credentials)
+def write_new_credentials(credentials, test_setup=false)
   credentials_path = if ENV["RACK_ENV"] == "test"
     File.expand_path("../test/users.yml", __FILE__)
   else
     File.expand_path("../users.yml", __FILE__)
   end
-  File.open(credentials_path, "w") { |file| YAML.dump(credentials, file) }
+
+  if test_setup
+    File.open(credentials_path, "w") { |file| file.write(credentials.to_yaml) }
+  else
+    File.open(credentials_path, "w") { |file| YAML.dump(credentials, file) }
+  end
 end
 
 def existing_user?(username)

@@ -14,6 +14,8 @@ class CMSTest < Minitest::Test
 
   def setup
     FileUtils.mkdir_p(data_path)
+    credentials = { "admin" => "$2a$12$E3E5OTHyEad/W5wQKliBVu0L4x1nxla7qECKlGeygknpyi4YmBslq" }
+    write_new_credentials(credentials, true)
   end
 
   def teardown
@@ -229,5 +231,41 @@ class CMSTest < Minitest::Test
 
     post "/clone", filename: "test.txt"
     assert_equal "You must be signed in to do that.", session[:message]
+  end
+
+  def test_signup_page
+    get "/"
+    assert_includes last_response.body, "Sign Up"
+
+    get "/users/signup"
+    assert_includes last_response.body, "Create a new username and password:"
+  end
+
+  def test_signup_new_user
+    post "/users/signup", username: "new_user", password: "secret"
+
+    get "/"
+    assert_includes last_response.body, "Your account has been created. Welcome!"
+    assert_includes last_response.body, "Signed in as new_user"
+
+    post "/users/signout"
+
+    post "/users/signin", username: "new_user", password: "secret"
+
+    get last_response["Location"]
+    assert_includes last_response.body, "Signed in as new_user"
+  end
+
+  def test_reject_new_signup_if_username_exists
+    post "/users/signup", username: "admin", password: "something"
+    assert_includes last_response.body, "That username is taken. Please choose a new one."
+  end
+
+  def test_reject_new_signup_invalid_username
+    post "/users/signup", username: "bo", password: "something"
+    assert_includes last_response.body, "Username must be 3-20 characters (letters, numbers, & underscores only)"
+
+    post "/users/signup", username: "$$$", password: "something"
+    assert_includes last_response.body, "Username must be 3-20 characters (letters, numbers, & underscores only)"
   end
 end
